@@ -58,6 +58,7 @@ flutter:
     - assets/cica2.jpg
     - assets/cica3.jpg
     - assets/cica4.jpg
+    - assets/cicaUp.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

@@ -1,3 +1,5 @@
+import 'dart:html';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -6,13 +8,13 @@ import 'package:firebase/firebase.dart' as fb;
 import 'package:firebase/firebase.dart';
 
 void main() {
-  /*initializeApp(
-    apiKey: "AIzaSyDGP4Ly3zgMxhNk3RxSxYKFvz0iAk32WZM",
-    authDomain: "stocknotifier-d762f.firebaseapp.com",
-    databaseURL: "https://stocknotifier-d762f.firebaseio.com",
-    projectId: "stocknotifier-d762f",
-    storageBucket: "stocknotifier-d762f.appspot.com");
-  */
+  initializeApp(
+      apiKey: "AIzaSyDGP4Ly3zgMxhNk3RxSxYKFvz0iAk32WZM",
+      authDomain: "stocknotifier-d762f.firebaseapp.com",
+      databaseURL: "https://stocknotifier-d762f.firebaseio.com",
+      projectId: "stocknotifier-d762f",
+      storageBucket: "stocknotifier-d762f.appspot.com");
+
   runApp(MyApp());
 }
 
@@ -39,6 +41,12 @@ class MyHomePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(title),
+      ),
+      floatingActionButton: FloatingActionButton(
+        child: Text("Upload"),
+        onPressed: () async {
+          await uploadImage();
+        },
       ),
       body: Injector(
         inject: [
@@ -129,7 +137,7 @@ class MyHomePage extends StatelessWidget {
             icon: Icon(Icons.dashboard),
             onPressed: () {
               Injector.getAsReactive<AuthService>().setState((authS) async {
-                await authS.next("cica3.jpg");
+                await authS.next("cicas/cica3.jpg");
               });
             },
           ),
@@ -145,6 +153,36 @@ class MyHomePage extends StatelessWidget {
       ),
     );
   }
+
+  void uploadImage() async {
+    InputElement uploadInput = FileUploadInputElement();
+    uploadInput.click();
+
+    uploadInput.onChange.listen(
+      (changeEvent) {
+        final file = uploadInput.files.first;
+        final reader = FileReader();
+
+        reader.readAsDataUrl(file);
+        reader.onLoadEnd.listen(
+          (loadEndEvent) async {
+            uploadToFirebase(file);
+          },
+        );
+      },
+    );
+  }
+}
+
+void uploadToFirebase(File imageFile) async {
+  fb.UploadTask _uploadTask;
+
+  final filePath = imageFile.name;
+    _uploadTask = fb
+        .storage()
+        .refFromURL("gs://stocknotifier-d762f.appspot.com/")
+        .child(filePath)
+        .put(imageFile);
 }
 
 class AuthService {
